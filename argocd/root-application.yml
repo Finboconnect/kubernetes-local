@@ -10,7 +10,7 @@ spec:
 
   source:
     # CHANGE THIS to your actual git URL.
-    repoURL: https://github.com/test-application.git
+    repoURL: https://github.com/Finboconnect/kubernetes-local.git
     targetRevision: main
     # Watch this directory in the repo. Every Application YAML in here
     # becomes a child Application managed by this root.

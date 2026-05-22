@@ -9,7 +9,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/test-application.git
+    repoURL: https://github.com/Finboconnect/kubernetes-local.git
     targetRevision: main
     path: .
     helm:

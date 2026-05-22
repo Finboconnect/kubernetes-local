@@ -15,7 +15,7 @@ spec:
     helm:
       releaseName: kanban-runners
       values: |
-        githubConfigUrl: https://github.com/Finboconnect/kanban-app
+        githubConfigUrl: https://github.com/Finboconnect
         # The PAT secret must exist BEFORE this Application syncs (see secrets/README).
         githubConfigSecret: kanban-runner-pat
         runnerScaleSetName: kanban-runners

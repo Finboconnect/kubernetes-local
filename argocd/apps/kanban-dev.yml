@@ -3,14 +3,12 @@ kind: Application
 metadata:
   name: kanban-dev
   namespace: argocd
-  # Allow Argo CD to clean up child resources when this Application is deleted.
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
 
   source:
-    # CHANGE THIS to your actual git URL.
     repoURL: https://github.com/test-application.git
     targetRevision: main
     path: .
@@ -27,8 +25,8 @@ spec:
 
   syncPolicy:
     automated:
-      prune: true       # delete resources removed from git
-      selfHeal: true    # revert manual cluster edits
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true

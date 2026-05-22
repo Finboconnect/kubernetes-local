@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    # CHANGE THIS to your actual git URL.
+    repoURL: https://github.com/test-application.git
+    targetRevision: main
+    # Watch this directory in the repo. Every Application YAML in here
+    # becomes a child Application managed by this root.
+    path: argocd/apps
+    directory:
+      recurse: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      prune: true       # remove a child Application if its YAML is deleted from git
+      selfHeal: true    # revert manual kubectl edits of Applications
+    syncOptions:
+      - CreateNamespace=false
+      - ServerSideApply=true

@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-image-updater
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    chart: argocd-image-updater
+    repoURL: https://argoproj.github.io/argo-helm
+    targetRevision: 0.11.0
+    helm:
+      releaseName: argocd-image-updater
+      values: |
+        config:
+          # Used in commit messages when Image Updater writes back to git.
+          gitCommitUser: argocd-image-updater
+          gitCommitMail: image-updater@finboconnect.local
+          gitCommitTemplate: |
+            chore(images): bump {{ range .AppChanges -}}{{ .Image }} to {{ .NewTag }}{{ end }}
+
+            Updated by Argo CD Image Updater
+        # How often to poll registries (default 2m).
+        # Keep modest while you're learning to avoid Docker Hub rate-limits.
+        interval: 2m
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

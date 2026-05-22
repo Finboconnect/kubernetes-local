@@ -1,0 +1,10 @@
+.DS_Store
+
+# Never commit raw secret yaml.
+secrets/*.yml
+secrets/*.yaml
+!secrets/README.md
+
+# Helm temp / lock files
+charts/
+*.tgz

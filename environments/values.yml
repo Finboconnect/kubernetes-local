@@ -1,6 +1,9 @@
 app:
   name: kanban
-  image: brotherfranklyn/kanban-app:latest
+  # Split into image (repo only) and imageTag so Argo CD Image Updater
+  # can rewrite just the tag without touching the repo path.
+  image: brotherfranklyn/kanban-app
+  imageTag: latest
   imagePullPolicy: IfNotPresent
   port: 360
   replicas: 1

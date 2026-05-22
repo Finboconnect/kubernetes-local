@@ -5,6 +5,19 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  annotations:
+    # Track the kanban-app image on Docker Hub and update tags automatically.
+    argocd-image-updater.argoproj.io/image-list: kanban=brotherfranklyn/kanban-app
+    # newest-build = pick the image whose pushed-to-registry timestamp is most recent.
+    # alternatives: semver, digest (for mutable tags like :latest), name (alphabetical).
+    argocd-image-updater.argoproj.io/kanban.update-strategy: newest-build
+    # Which Helm parameter holds the image. Tells Image Updater what to overwrite.
+    argocd-image-updater.argoproj.io/kanban.helm.image-name: app.image
+    argocd-image-updater.argoproj.io/kanban.helm.image-tag: app.imageTag
+    # write-back-method: git -> Image Updater commits to git, webhook fires, Argo CD reconciles.
+    # The credentials secret 'argocd-image-updater-git' must exist (see secrets/README).
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/argocd-image-updater-git
+    argocd-image-updater.argoproj.io/git-branch: main
 spec:
   project: default
 

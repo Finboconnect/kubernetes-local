@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arc-runners-kanban
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    chart: gha-runner-scale-set
+    repoURL: ghcr.io/actions/actions-runner-controller-charts
+    targetRevision: 0.9.3
+    helm:
+      releaseName: kanban-runners
+      values: |
+        githubConfigUrl: https://github.com/Finboconnect/kanban-app
+        # The PAT secret must exist BEFORE this Application syncs (see secrets/README).
+        githubConfigSecret: kanban-runner-pat
+        runnerScaleSetName: kanban-runners
+        minRunners: 0
+        maxRunners: 3
+        # DinD = docker-in-docker, lets the runner pod build Docker images.
+        # Requires privileged pods — fine on local kind, NOT for production clusters.
+        containerMode:
+          type: dind
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: arc-runners
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

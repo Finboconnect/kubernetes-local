@@ -5,6 +5,16 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: kanban=brotherfranklyn/kanban-app
+    # Prod tracks the same image but with a stricter strategy: only matching
+    # a semver-style tag (e.g. v1.2.3). Adjust if your CI uses different tags.
+    argocd-image-updater.argoproj.io/kanban.update-strategy: semver
+    argocd-image-updater.argoproj.io/kanban.allow-tags: regexp:^v\d+\.\d+\.\d+$
+    argocd-image-updater.argoproj.io/kanban.helm.image-name: app.image
+    argocd-image-updater.argoproj.io/kanban.helm.image-tag: app.imageTag
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/argocd-image-updater-git
+    argocd-image-updater.argoproj.io/git-branch: main
 spec:
   project: default
 

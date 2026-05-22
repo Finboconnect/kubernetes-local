@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: {{ .Values.app.name }}
-          image: {{ .Values.app.image }}
+          image: "{{ .Values.app.image }}:{{ .Values.app.imageTag }}"
           imagePullPolicy: {{ .Values.app.imagePullPolicy | default "IfNotPresent" }}
           {{- with .Values.app.command }}
           command:

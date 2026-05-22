@@ -11,7 +11,7 @@ spec:
 
   source:
     # CHANGE THIS to your actual git URL.
-    repoURL: https://github.com/brotherfranklyn/kubernetes-local.git
+    repoURL: https://github.com/test-application.git
     targetRevision: main
     path: .
     helm:

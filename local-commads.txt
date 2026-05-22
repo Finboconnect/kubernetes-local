@@ -1,8 +1,25 @@
-./deploy.sh dev                # helm upgrade --install into namespace "dev"
-./deploy.sh prod               # same, but for prod
+#Generate a new token now → re-encrypt → commit (preferred). Run after creating the new token:
 
+PAT='ghp_NEW_TOKEN_HERE'
+cd /Users/franklyn/Documents/2026/kubernetes-local
 
+kubectl create secret generic kanban-runner-pat -n arc-runners \
+  --from-literal=github_token="$PAT" --dry-run=client -o yaml \
+| kubeseal --format=yaml --controller-name=sealed-secrets \
+  --controller-namespace=kube-system \
+  > secrets/kanban-runner-pat.sealed.yaml
 
+kubectl create secret generic argocd-image-updater-git -n argocd --type=Opaque \
+  --from-literal=username=git --from-literal=password="$PAT" \
+  --dry-run=client -o yaml \
+| kubeseal --format=yaml --controller-name=sealed-secrets \
+  --controller-namespace=kube-system \
+  > secrets/argocd-image-updater-git.sealed.yaml
+
+kubectl apply -f secrets/kanban-runner-pat.sealed.yaml
+kubectl apply -f secrets/argocd-image-updater-git.sealed.yaml
+
+unset PAT
 
 
 kind delete cluster

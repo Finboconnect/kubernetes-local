@@ -1,9 +1,10 @@
 .DS_Store
 
-# Never commit raw secret yaml.
+# Never commit raw secret yaml — encrypted SealedSecrets are fine though.
 secrets/*.yml
 secrets/*.yaml
 !secrets/README.md
+!secrets/*.sealed.yaml
 
 # Helm temp / lock files
 charts/

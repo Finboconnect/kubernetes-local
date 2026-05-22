@@ -25,6 +25,12 @@ spec:
         # Requires privileged pods — fine on local kind, NOT for production clusters.
         containerMode:
           type: dind
+        # Required when rendering this chart via Argo CD/`helm template`: tell
+        # it explicitly which controller ServiceAccount to bind RoleBindings to,
+        # since template-time lookup of the live controller Deployment fails.
+        controllerServiceAccount:
+          name: arc-gha-rs-controller
+          namespace: arc-systems
 
   destination:
     server: https://kubernetes.default.svc

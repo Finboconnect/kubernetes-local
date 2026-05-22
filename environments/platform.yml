@@ -1,0 +1,8 @@
+commonLabels:
+  managed-by: platform-team
+  part-of: kanban
+
+ingress:
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /

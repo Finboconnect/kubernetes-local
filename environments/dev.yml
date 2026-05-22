@@ -1,0 +1,8 @@
+namespace: dev
+
+app:
+  name: kanban-dev
+  replicas: 1
+
+commonLabels:
+  environment: dev

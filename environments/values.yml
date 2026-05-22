@@ -1,0 +1,22 @@
+app:
+  name: kanban
+  image: registry.k8s.io/e2e-test-images/agnhost:2.39
+  imagePullPolicy: IfNotPresent
+  port: 8080
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  path: /app1
+  pathType: Prefix

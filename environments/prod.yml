@@ -12,7 +12,7 @@ app:
       memory: 512Mi
 
 ingress:
-  host: kanban.localtest.prod
+  host: prod.kanban.localtest.me
 
 commonLabels:
   environment: prod

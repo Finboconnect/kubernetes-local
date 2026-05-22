@@ -19,6 +19,18 @@ spec:
     server: https://kubernetes.default.svc
     namespace: arc-systems
 
+  # The CRDs that the chart bundles get applied once and then live their own
+  # life (kubectl defaults fields, conversion webhook may rewrite schemas).
+  # Without this, Argo CD perpetually reports OutOfSync even though the
+  # controller is healthy and running.
+  ignoreDifferences:
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      jqPathExpressions:
+        - '.spec.conversion'
+        - '.spec.preserveUnknownFields'
+        - '.spec.versions[].schema'
+
   syncPolicy:
     automated:
       prune: true
@@ -26,3 +38,4 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      - RespectIgnoreDifferences=true

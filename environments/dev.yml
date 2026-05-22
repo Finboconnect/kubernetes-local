@@ -4,5 +4,8 @@ app:
   name: kanban-dev
   replicas: 1
 
+ingress:
+  host: kanban.localtest.dev
+
 commonLabels:
   environment: dev

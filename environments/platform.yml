@@ -4,5 +4,3 @@ commonLabels:
 
 ingress:
   className: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /

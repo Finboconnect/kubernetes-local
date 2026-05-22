@@ -24,5 +24,6 @@ service:
 
 ingress:
   enabled: true
-  path: /app1
+  host: kanban.localtest.me
+  path: /
   pathType: Prefix

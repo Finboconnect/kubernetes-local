@@ -1,0 +1,5 @@
+./deploy.sh dev                # helm upgrade --install into namespace "dev"
+./deploy.sh prod               # same, but for prod
+./deploy.sh dev template       # just render YAML to stdout (no cluster touch)
+./deploy.sh dev apply          # render and pipe straight to kubectl
+./deploy.sh dev uninstall      # tear it down

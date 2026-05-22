@@ -25,11 +25,18 @@ spec:
         - name: {{ .Values.app.name }}
           image: {{ .Values.app.image }}
           imagePullPolicy: {{ .Values.app.imagePullPolicy | default "IfNotPresent" }}
+          {{- with .Values.app.command }}
           command:
-            - /agnhost
-            - serve-hostname
-            - --http=true
-            - --port={{ .Values.app.port }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.app.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.app.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.app.port }}

@@ -1,9 +1,15 @@
 app:
   name: kanban
-  image: registry.k8s.io/e2e-test-images/agnhost:2.39
+  image: brotherfranklyn/kanban-app:latest
   imagePullPolicy: IfNotPresent
-  port: 8080
+  port: 360
   replicas: 1
+  # Optional: only set these if your image needs overrides.
+  # command: []
+  # args: []
+  # env:
+  #   - name: PORT
+  #     value: "360"
   resources:
     requests:
       cpu: 50m
@@ -14,7 +20,7 @@ app:
 
 service:
   type: ClusterIP
-  port: 8080
+  port: 360
 
 ingress:
   enabled: true

@@ -1,0 +1,8 @@
+helm:
+  parameters:
+  - name: app.image
+    value: brotherfranklyn/kanban-app
+    forcestring: true
+  - name: app.imageTag
+    value: v1.0.0
+    forcestring: true

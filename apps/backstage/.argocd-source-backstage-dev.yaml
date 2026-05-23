@@ -1,0 +1,8 @@
+helm:
+  parameters:
+  - name: app.image
+    value: brotherfranklyn/backstage
+    forcestring: true
+  - name: app.imageTag
+    value: 5e6d4ed99023d2d24f9a28c4c566d09acba798b9
+    forcestring: true

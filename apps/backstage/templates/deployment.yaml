@@ -29,14 +29,14 @@ spec:
             - name: http
               containerPort: {{ .Values.app.port }}
           env:
-            # Postgres connection — assumes the Bitnami subchart's primary
-            # service name follows the standard "{release}-postgresql" pattern.
             - name: POSTGRES_HOST
-              value: "{{ .Release.Name }}-postgresql.{{ .Values.namespace }}.svc.cluster.local"
+              value: "{{ .Values.app.name }}-postgres.{{ .Values.namespace }}.svc.cluster.local"
             - name: POSTGRES_PORT
-              value: "5432"
+              value: "{{ .Values.postgres.port }}"
             - name: POSTGRES_USER
-              value: backstage
+              value: {{ .Values.postgres.username | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.postgres.database | quote }}
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:

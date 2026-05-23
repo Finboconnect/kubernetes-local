@@ -1,0 +1,118 @@
+{{- if .Values.postgres.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.app.name }}-postgres
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.app.name }}-postgres
+    {{- with .Values.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.app.name }}-postgres
+  ports:
+    - name: postgres
+      port: {{ .Values.postgres.port }}
+      targetPort: postgres
+      protocol: TCP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.app.name }}-postgres-data
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.app.name }}-postgres
+    {{- with .Values.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.postgres.storageClass | default "standard" }}
+  resources:
+    requests:
+      storage: {{ .Values.postgres.storage }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app.name }}-postgres
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.app.name }}-postgres
+    {{- with .Values.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  # Single replica only — running multiple pods on one PVC would corrupt data.
+  replicas: 1
+  strategy:
+    type: Recreate          # avoid two pods touching the PVC during upgrades
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}-postgres
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}-postgres
+        {{- with .Values.commonLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ .Values.postgres.image }}:{{ .Values.postgres.imageTag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: {{ .Values.postgres.port }}
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.postgres.username | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.postgres.database | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgresSecret.name }}
+                  key: password
+            # Subdir avoids the "data dir not empty" error when mounting an
+            # existing PVC that contains a `lost+found` directory.
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - {{ .Values.postgres.username | quote }}
+                - -d
+                - {{ .Values.postgres.database | quote }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - {{ .Values.postgres.username | quote }}
+                - -d
+                - {{ .Values.postgres.database | quote }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          {{- with .Values.postgres.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.app.name }}-postgres-data
+{{- end }}

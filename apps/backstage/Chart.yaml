@@ -5,10 +5,6 @@ type: application
 version: 0.1.0
 appVersion: "1.0.0"
 
-dependencies:
-  # Bitnami PostgreSQL — battle-tested chart with probes, security context,
-  # init scripts, metrics, and backup hooks. Toggleable via postgresql.enabled.
-  - name: postgresql
-    version: 15.5.38
-    repository: oci://registry-1.docker.io/bitnamicharts
-    condition: postgresql.enabled
+# Bitnami's PostgreSQL chart was removed from public Docker Hub tags as of 2025
+# (only signature/metadata blobs remain), so we manage Postgres ourselves with
+# a minimal Deployment + PVC + Service in templates/postgres.yaml.

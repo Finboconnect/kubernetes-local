@@ -7,10 +7,8 @@ app:
 ingress:
   host: backstage.localtest.prod
 
-postgresql:
-  primary:
-    persistence:
-      size: 16Gi
+postgres:
+  storage: 16Gi
 
 commonLabels:
   environment: prod

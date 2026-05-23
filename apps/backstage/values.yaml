@@ -1,8 +1,5 @@
 app:
   name: backstage
-  # Replace with your actual Backstage image once your CI is building it.
-  # Image Updater (configured via the Argo CD Application annotations) will
-  # rewrite imageTag automatically.
   image: brotherfranklyn/backstage
   imageTag: latest
   imagePullPolicy: IfNotPresent
@@ -15,14 +12,11 @@ app:
     limits:
       cpu: 1000m
       memory: 1Gi
-  # Healthcheck endpoints (uncomment in your Backstage app to enable):
-  # https://backstage.io/docs/plugins/observability#health-checks
   probes:
     enabled: false
     path: /healthcheck
 
-# Reference to the SealedSecret-decoded Secret in this namespace.
-# Both Backstage and the postgres subchart read from the same secret.
+# References the SealedSecret-decoded Secret in the deploy namespace.
 postgresSecret:
   name: backstage-postgres-creds
 
@@ -31,40 +25,29 @@ backstageSecret:
 
 service:
   type: ClusterIP
-  port: 80   # Backstage UI listens on http://backstage.localtest.dev (port 80 at the ingress)
+  port: 80
 
 ingress:
   enabled: true
-  # host is set per-environment (dev.yaml / prod.yaml).
+  # host is set per-environment in dev.yaml / prod.yaml.
   path: /
   pathType: Prefix
 
-# ----- PostgreSQL subchart (Bitnami) configuration -----
-postgresql:
+# ----- In-house Postgres (replaces the Bitnami subchart) -----
+postgres:
   enabled: true
-
-  auth:
-    # Reuse the SealedSecret-decoded Secret instead of letting the subchart
-    # generate one. Both Backstage and Postgres reference the same Secret.
-    existingSecret: backstage-postgres-creds
-    secretKeys:
-      adminPasswordKey: postgres-password   # for the postgres superuser
-      userPasswordKey: password             # for the application user
-    username: backstage
-    database: backstage
-
-  primary:
-    persistence:
-      enabled: true
-      # 'standard' is what kind's local-path-provisioner registers as default.
-      # No PV needs to be hand-created — the StorageClass dynamically provisions one.
-      storageClass: standard
-      size: 8Gi
-
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits:
-        cpu: 500m
-        memory: 512Mi
+  image: postgres
+  imageTag: "16-alpine"
+  username: backstage
+  database: backstage
+  port: 5432
+  # PVC settings
+  storageClass: standard           # kind's local-path-provisioner provides this
+  storage: 8Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

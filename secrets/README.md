@@ -70,3 +70,67 @@ secret by name:
 ```yaml
 argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/argocd-image-updater-git
 ```
+
+## 3. Backstage Postgres credentials (per environment)
+
+Required by: `apps/backstage/templates/deployment.yaml` and the bundled
+Bitnami PostgreSQL subchart.
+
+The Bitnami chart expects two keys in the secret:
+- `postgres-password` — the `postgres` superuser password
+- `password`          — the application user (`backstage`) password
+
+Generate one secret per environment namespace (`backstage-dev`, `backstage-prod`):
+
+```sh
+ADMIN_PW=$(openssl rand -base64 24)
+APP_PW=$(openssl rand -base64 24)
+
+for NS in backstage-dev backstage-prod; do
+  kubectl create namespace "$NS" --dry-run=client -o yaml | kubectl apply -f -
+
+  kubectl create secret generic backstage-postgres-creds \
+    --namespace "$NS" \
+    --from-literal=postgres-password="$ADMIN_PW" \
+    --from-literal=password="$APP_PW" \
+    --dry-run=client -o yaml \
+  | kubeseal --format=yaml \
+      --controller-name=sealed-secrets \
+      --controller-namespace=kube-system \
+      > "secrets/backstage-postgres-creds.${NS}.sealed.yaml"
+done
+
+unset ADMIN_PW APP_PW
+```
+
+(You'd typically generate two *different* admin/app passwords for the two
+environments — modify the loop above accordingly. For learning, sharing them
+is fine.)
+
+## 4. Backstage GitHub token (per environment)
+
+Required by: `apps/backstage/templates/deployment.yaml` (the Backstage app
+itself uses this to read GitHub for catalog imports).
+
+Create a PAT scoped to whatever repos Backstage should index:
+
+```sh
+read -rs GH_TOKEN     # paste github_pat_... or ghp_... here
+
+for NS in backstage-dev backstage-prod; do
+  kubectl create secret generic backstage-github-token \
+    --namespace "$NS" \
+    --from-literal=GITHUB_TOKEN="$GH_TOKEN" \
+    --dry-run=client -o yaml \
+  | kubeseal --format=yaml \
+      --controller-name=sealed-secrets \
+      --controller-namespace=kube-system \
+      > "secrets/backstage-github-token.${NS}.sealed.yaml"
+done
+
+unset GH_TOKEN
+```
+
+After both loops, you'll have four new files in `secrets/`. Commit them — the
+`.sealed.yaml` extension is allowed in `.gitignore` because the contents are
+encrypted ciphertext.

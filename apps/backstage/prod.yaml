@@ -1,0 +1,16 @@
+namespace: backstage-prod
+
+app:
+  name: backstage
+  replicas: 2
+
+ingress:
+  host: backstage.localtest.prod
+
+postgresql:
+  primary:
+    persistence:
+      size: 16Gi
+
+commonLabels:
+  environment: prod

@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.app.name }}
+    {{- with .Values.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.app.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}
+        {{- with .Values.commonLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+        - name: {{ .Values.app.name }}
+          image: "{{ .Values.app.image }}:{{ .Values.app.imageTag }}"
+          imagePullPolicy: {{ .Values.app.imagePullPolicy | default "IfNotPresent" }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.app.port }}
+          env:
+            # Postgres connection — assumes the Bitnami subchart's primary
+            # service name follows the standard "{release}-postgresql" pattern.
+            - name: POSTGRES_HOST
+              value: "{{ .Release.Name }}-postgresql.{{ .Values.namespace }}.svc.cluster.local"
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_USER
+              value: backstage
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgresSecret.name }}
+                  key: password
+            # Backstage-specific secrets (GitHub token, auth providers, etc.)
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backstageSecret.name }}
+                  key: GITHUB_TOKEN
+                  optional: true
+          {{- if .Values.app.probes.enabled }}
+          readinessProbe:
+            httpGet:
+              port: http
+              path: {{ .Values.app.probes.path }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              port: http
+              path: {{ .Values.app.probes.path }}
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          {{- end }}
+          {{- with .Values.app.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}

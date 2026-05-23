@@ -1,0 +1,16 @@
+namespace: backstage-dev
+
+app:
+  name: backstage-dev
+  replicas: 1
+
+ingress:
+  host: backstage.localtest.dev
+
+postgresql:
+  primary:
+    persistence:
+      size: 4Gi
+
+commonLabels:
+  environment: dev

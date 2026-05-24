@@ -29,6 +29,8 @@ spec:
             - name: http
               containerPort: {{ .Values.app.port }}
           env:
+            - name: APP_BASE_URL
+              value: "http://{{ .Values.ingress.host }}"
             - name: POSTGRES_HOST
               value: "{{ .Values.app.name }}-postgres.{{ .Values.namespace }}.svc.cluster.local"
             - name: POSTGRES_PORT

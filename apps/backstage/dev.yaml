@@ -5,7 +5,7 @@ app:
   replicas: 1
 
 ingress:
-  host: backstage.localtest.dev
+  host: backstage-dev.localtest.me
 
 postgres:
   storage: 4Gi

@@ -4,5 +4,5 @@ helm:
     value: brotherfranklyn/backstage
     forcestring: true
   - name: app.imageTag
-    value: c9ca3de0c1bfba89baad756911fb9bd316b13ff8
+    value: 936bf9f228db997b8a519a0521f086ad2789b5f6
     forcestring: true

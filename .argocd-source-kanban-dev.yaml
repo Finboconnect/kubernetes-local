@@ -4,5 +4,5 @@ helm:
     value: brotherfranklyn/kanban-app
     forcestring: true
   - name: app.imageTag
-    value: 2426daf254105212a86b928b372d6852d379a33a
+    value: 62bbb80bd6cab9bfd28a820c34b1895e29458940
     forcestring: true

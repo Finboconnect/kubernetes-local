@@ -17,6 +17,7 @@ spec:
     metadata:
       labels:
         app: {{ .Values.app.name }}
+        backstage.io/kubernetes-id: {{ .Values.app.name }}
         {{- with .Values.commonLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
